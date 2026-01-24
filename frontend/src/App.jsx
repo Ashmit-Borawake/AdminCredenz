@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import Login from "./components/Login";
+import Login from "./Pages/Login";
 import AdminPanel from "./components/admin";
 import "./App.css";
 

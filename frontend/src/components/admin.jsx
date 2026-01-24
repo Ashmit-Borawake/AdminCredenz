@@ -9,10 +9,10 @@ import {
   Mail,
   XCircle,
 } from "lucide-react";
-import PendingOrders from "./PendingOrders";
-import PendingPass from "./PendingPass";
-import ApprovedOrders from "./ApprovedOrders";
-import QuickActions from "./QuickActions";
+import PendingOrders from "../Pages/PendingOrders";
+import PendingPass from "../Pages/PendingPass";
+import ApprovedOrders from "../Pages/ApprovedOrders";
+import QuickActions from "../Pages/QuickActions";
 
 const AdminPanel = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState("orders");
@@ -25,7 +25,7 @@ const AdminPanel = ({ onLogout }) => {
   const [emailModalData, setEmailModalData] = useState(null);
   const [userDetailsCache, setUserDetailsCache] = useState({});
 
-  const API_BASE = "http://localhost:3000";
+  const API_BASE = "https://abhitime.credenz.co.in/";
 
   // Email Modal Component
   const EmailModal = ({ username, onClose, onSend }) => {
@@ -202,15 +202,18 @@ const AdminPanel = ({ onLogout }) => {
     }
 
     try {
-      const response = await fetch(`${API_BASE}/admin/approveOrder`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+      const response = await fetch(
+        `${API_BASE}/admin/approveOrder/${orderID}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          },
+          body: JSON.stringify({ orderID }),
+          credentials: "include",
         },
-        body: JSON.stringify({ orderID }),
-        credentials: "include",
-      });
+      );
 
       if (response.ok) {
         fetchOrders();
@@ -249,15 +252,18 @@ const AdminPanel = ({ onLogout }) => {
   // Approve pass order
   const approvePassOrder = async (orderID) => {
     try {
-      const response = await fetch(`${API_BASE}/admin/approvePassOrder`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+      const response = await fetch(
+        `${API_BASE}/admin/approvePassOrder/${orderID}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          },
+          body: JSON.stringify({ orderID }),
+          credentials: "include",
         },
-        body: JSON.stringify({ orderID }),
-        credentials: "include",
-      });
+      );
 
       if (response.ok) {
         fetchPassOrders();
