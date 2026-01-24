@@ -25,7 +25,8 @@ const AdminPanel = ({ onLogout }) => {
   const [emailModalData, setEmailModalData] = useState(null);
   const [userDetailsCache, setUserDetailsCache] = useState({});
 
-  const API_BASE = "https://abhitime.credenz.co.in/";
+  // const API_BASE = "https://abhitime.credenz.co.in";
+  const API_BASE = "http://localhost:3000";
 
   // Email Modal Component
   const EmailModal = ({ username, onClose, onSend }) => {
@@ -453,33 +454,39 @@ const AdminPanel = ({ onLogout }) => {
     }
   }, [activeTab]);
 
-  // Filter orders based on search
+  // FIXED: Filter orders based on search - NOW INCLUDES EVENT SLUG
   const filteredOrders = orders.filter(([orderID, order]) => {
+    const searchLower = searchTerm.toLowerCase();
     const matchesSearch =
-      orderID.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      orderID.toLowerCase().includes(searchLower) ||
       order.orderItems.some(
         (item) =>
-          item.teamname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.username1.toLowerCase().includes(searchTerm.toLowerCase()),
+          item.teamname.toLowerCase().includes(searchLower) ||
+          item.username1.toLowerCase().includes(searchLower) ||
+          item.eventSlug.toLowerCase().includes(searchLower), // ADDED EVENT SLUG SEARCH
       );
     return matchesSearch;
   });
 
   const filteredPassOrders = passOrders.filter((order) => {
+    const searchLower = searchTerm.toLowerCase();
     const matchesSearch =
-      order.orderID.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.username1.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      order.teamname.toLowerCase().includes(searchTerm.toLowerCase());
+      order.orderID.toLowerCase().includes(searchLower) ||
+      order.username1.toLowerCase().includes(searchLower) ||
+      order.teamname.toLowerCase().includes(searchLower);
     return matchesSearch;
   });
 
+  // FIXED: Filter approved orders - NOW INCLUDES EVENT SLUG
   const filteredApprovedOrders = approvedOrders.filter(([orderID, order]) => {
+    const searchLower = searchTerm.toLowerCase();
     const matchesSearch =
-      orderID.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      orderID.toLowerCase().includes(searchLower) ||
       order.orderItems.some(
         (item) =>
-          item.teamname.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.username1.toLowerCase().includes(searchTerm.toLowerCase()),
+          item.teamname.toLowerCase().includes(searchLower) ||
+          item.username1.toLowerCase().includes(searchLower) ||
+          item.eventSlug.toLowerCase().includes(searchLower), // ADDED EVENT SLUG SEARCH
       );
     return matchesSearch;
   });
@@ -578,7 +585,7 @@ const AdminPanel = ({ onLogout }) => {
         </div>
       </div>
 
-      {/* Search Bar */}
+      {/* Search Bar - UPDATED PLACEHOLDER */}
       {activeTab !== "quick-actions" && (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center space-x-4">
@@ -586,7 +593,7 @@ const AdminPanel = ({ onLogout }) => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search by Order ID, Team Name, or Username..."
+                placeholder="Search by Order ID, Team Name, Username, or Event (e.g., datawiz, oss, enigma)..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
@@ -667,33 +674,3 @@ const AdminPanel = ({ onLogout }) => {
 };
 
 export default AdminPanel;
-
-// ---
-
-// ## **Summary:**
-
-// ✅ **Your 5 component files are CORRECT:**
-// - ApprovedOrders.jsx
-// - Login.jsx
-// - PendingOrders.jsx
-// - PendingPass.jsx
-// - QuickActions.jsx
-
-// ✅ **Create these 2 NEW files:**
-// 1. **App.jsx** (in src folder)
-// 2. **NEW admin.jsx** (replace current one in components folder)
-
-// ✅ **Then DELETE the old admin.jsx**
-
-// Your app structure will be:
-// ```
-// src/
-//   ├── App.jsx                    ← NEW (handles auth routing)
-//   ├── App.css
-//   └── components/
-//       ├── admin.jsx              ← REPLACE with NEW version
-//       ├── Login.jsx              ✅ Already correct
-//       ├── ApprovedOrders.jsx     ✅ Already correct
-//       ├── PendingOrders.jsx      ✅ Already correct
-//       ├── PendingPass.jsx        ✅ Already correct
-//       └── QuickActions.jsx       ✅ Already correct
