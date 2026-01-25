@@ -7,6 +7,7 @@ const PendingPass = ({
   onDecline,
   onSendEmail,
   getUserDetails,
+  loadingPassOrderId,
 }) => {
   const [expandedOrders, setExpandedOrders] = useState({});
   const [userDetails, setUserDetails] = useState({});
@@ -139,20 +140,45 @@ const PendingPass = ({
               </div>
 
               <div className="pt-3 border-t border-gray-200 flex space-x-2">
+                {/* Approve */}
                 <button
                   onClick={() => onApprove(order.orderID)}
-                  className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition text-sm font-medium"
+                  disabled={loadingPassOrderId === order.orderID}
+                  className={`flex-1 flex items-center justify-center space-x-1 px-3 py-2 rounded-lg transition text-sm font-medium
+      ${
+        loadingPassOrderId === order.orderID
+          ? "bg-green-400 cursor-not-allowed"
+          : "bg-green-600 hover:bg-green-700"
+      } text-white`}
                 >
                   <CheckCircle className="w-4 h-4" />
-                  <span>Approve</span>
+                  <span>
+                    {loadingPassOrderId === order.orderID
+                      ? "Approving..."
+                      : "Approve"}
+                  </span>
                 </button>
+
+                {/* Decline */}
                 <button
                   onClick={() => onDecline(order.id)}
-                  className="flex-1 flex items-center justify-center space-x-1 px-3 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition text-sm font-medium"
+                  disabled={loadingPassOrderId === order.id}
+                  className={`flex-1 flex items-center justify-center space-x-1 px-3 py-2 rounded-lg transition text-sm font-medium
+                  ${
+                    loadingPassOrderId === order.id
+                      ? "bg-red-400 cursor-not-allowed"
+                      : "bg-red-600 hover:bg-red-700"
+                  } text-white`}
                 >
                   <XCircle className="w-4 h-4" />
-                  <span>Decline</span>
+                  <span>
+                    {loadingPassOrderId === order.id
+                      ? "Declining..."
+                      : "Decline"}
+                  </span>
                 </button>
+
+                {/* Email */}
                 <button
                   onClick={() => onSendEmail(order.username1)}
                   className="flex items-center justify-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition text-sm font-medium"

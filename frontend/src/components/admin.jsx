@@ -25,6 +25,9 @@ const AdminPanel = ({ onLogout }) => {
   const [emailModalData, setEmailModalData] = useState(null);
   const [userDetailsCache, setUserDetailsCache] = useState({});
 
+  const [loadingOrderId, setLoadingOrderId] = useState(null);
+  const [loadingPassOrderId, setLoadingPassOrderId] = useState(null);
+
   const API_BASE = "https://abhitime.credenz.co.in";
 
   // Email Modal Component
@@ -197,9 +200,9 @@ const AdminPanel = ({ onLogout }) => {
       "Are you sure you want to approve this order?",
     );
 
-    if (!confirmed) {
-      return;
-    }
+    if (!confirmed) return;
+
+    setLoadingOrderId(orderID);
 
     try {
       const response = await fetch(
@@ -220,12 +223,20 @@ const AdminPanel = ({ onLogout }) => {
       }
     } catch (error) {
       console.error("Error approving order:", error);
+    } finally {
+      setLoadingOrderId(null);
     }
   };
 
   // Decline regular order
   const declineOrder = async (orderID) => {
-    if (!confirm("Are you sure you want to decline this order?")) return;
+    const confirmed = window.confirm(
+      "Are you sure you want to decline this order?",
+    );
+
+    if (!confirmed) return;
+
+    setLoadingOrderId(orderID);
 
     try {
       const response = await fetch(
@@ -246,11 +257,21 @@ const AdminPanel = ({ onLogout }) => {
       }
     } catch (error) {
       console.error("Error declining order:", error);
+    } finally {
+      setLoadingOrderId(null);
     }
   };
 
   // Approve pass order
   const approvePassOrder = async (orderID) => {
+    const confirmed = window.confirm(
+      "Are you sure you want to approve this order?",
+    );
+
+    if (!confirmed) return;
+
+    setLoadingPassOrderId(orderID);
+
     try {
       const response = await fetch(
         `${API_BASE}/admin/approvePassOrder/${orderID}`,
@@ -270,12 +291,20 @@ const AdminPanel = ({ onLogout }) => {
       }
     } catch (error) {
       console.error("Error approving pass order:", error);
+    } finally {
+      setLoadingPassOrderId(null);
     }
   };
 
   // Decline pass order
   const declinePassOrder = async (id) => {
-    if (!confirm("Are you sure you want to decline this pass order?")) return;
+    const confirmed = window.confirm(
+      "Are you sure you want to decline this pass order?",
+    );
+
+    if (!confirmed) return;
+
+    setLoadingPassOrderId(id);
 
     try {
       const response = await fetch(`${API_BASE}/admin/declinePassOrder`, {
@@ -293,6 +322,8 @@ const AdminPanel = ({ onLogout }) => {
       }
     } catch (error) {
       console.error("Error declining pass order:", error);
+    } finally {
+      setLoadingPassOrderId(null);
     }
   };
 
@@ -637,6 +668,7 @@ const AdminPanel = ({ onLogout }) => {
             orders={filteredOrders}
             onApprove={approveOrder}
             onDecline={declineOrder}
+            loadingOrderId={loadingOrderId} // ✅ ADD
             onSendEmail={(username) => setEmailModalData({ username })}
             getUserDetails={getUserDetails}
           />
@@ -645,6 +677,7 @@ const AdminPanel = ({ onLogout }) => {
             orders={filteredPassOrders}
             onApprove={approvePassOrder}
             onDecline={declinePassOrder}
+            loadingPassOrderId={loadingPassOrderId} // ✅ ADD
             onSendEmail={(username) => setEmailModalData({ username })}
             getUserDetails={getUserDetails}
           />
