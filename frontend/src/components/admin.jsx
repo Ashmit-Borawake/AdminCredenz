@@ -25,8 +25,7 @@ const AdminPanel = ({ onLogout }) => {
   const [emailModalData, setEmailModalData] = useState(null);
   const [userDetailsCache, setUserDetailsCache] = useState({});
 
-  // const API_BASE = "https://abhitime.credenz.co.in";
-  const API_BASE = "http://localhost:3000";
+  const API_BASE = "https://abhitime.credenz.co.in";
 
   // Email Modal Component
   const EmailModal = ({ username, onClose, onSend }) => {
@@ -454,7 +453,7 @@ const AdminPanel = ({ onLogout }) => {
     }
   }, [activeTab]);
 
-  // FIXED: Filter orders based on search - NOW INCLUDES EVENT SLUG
+  // FIXED: Filter orders based on search - NOW INCLUDES EVENT SLUG & TRANSACTION ID
   const filteredOrders = orders.filter(([orderID, order]) => {
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch =
@@ -463,7 +462,8 @@ const AdminPanel = ({ onLogout }) => {
         (item) =>
           item.teamname.toLowerCase().includes(searchLower) ||
           item.username1.toLowerCase().includes(searchLower) ||
-          item.eventSlug.toLowerCase().includes(searchLower), // ADDED EVENT SLUG SEARCH
+          item.eventSlug.toLowerCase().includes(searchLower) ||
+          item.transactionID.toLowerCase().includes(searchLower), // ADDED TRANSACTION ID SEARCH
       );
     return matchesSearch;
   });
@@ -473,11 +473,12 @@ const AdminPanel = ({ onLogout }) => {
     const matchesSearch =
       order.orderID.toLowerCase().includes(searchLower) ||
       order.username1.toLowerCase().includes(searchLower) ||
-      order.teamname.toLowerCase().includes(searchLower);
+      order.teamname.toLowerCase().includes(searchLower) ||
+      order.transactionID.toLowerCase().includes(searchLower); // ADDED TRANSACTION ID SEARCH
     return matchesSearch;
   });
 
-  // FIXED: Filter approved orders - NOW INCLUDES EVENT SLUG
+  // FIXED: Filter approved orders - NOW INCLUDES EVENT SLUG & TRANSACTION ID
   const filteredApprovedOrders = approvedOrders.filter(([orderID, order]) => {
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch =
@@ -486,7 +487,8 @@ const AdminPanel = ({ onLogout }) => {
         (item) =>
           item.teamname.toLowerCase().includes(searchLower) ||
           item.username1.toLowerCase().includes(searchLower) ||
-          item.eventSlug.toLowerCase().includes(searchLower), // ADDED EVENT SLUG SEARCH
+          item.eventSlug.toLowerCase().includes(searchLower) ||
+          item.transactionID.toLowerCase().includes(searchLower), // ADDED TRANSACTION ID SEARCH
       );
     return matchesSearch;
   });
@@ -593,7 +595,7 @@ const AdminPanel = ({ onLogout }) => {
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Search by Order ID, Team Name, Username, or Event (e.g., datawiz, oss, enigma)..."
+                placeholder="Search by Order ID, Team Name, Username, Event, or Transaction ID..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
