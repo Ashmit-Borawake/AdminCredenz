@@ -32,6 +32,19 @@ const PendingPass = ({
       </div>
     );
   }
+  const formatDateTime = (isoString) => {
+    const date = new Date(isoString);
+
+    return date.toLocaleString("en-IN", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
 
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
@@ -53,16 +66,16 @@ const PendingPass = ({
                   }
                   className="text-white text-sm hover:text-purple-100"
                 >
-                  {isExpanded ? "▼" : "▶"}
+                  {isExpanded ? "▼ Hide Details" : "▶ Show User Details"}
                 </button>
               </div>
             </div>
 
             <div className="p-4 space-y-3">
               <div>
-                <p className="text-xs text-gray-500 uppercase">Order ID</p>
+                <p className="text-xs text-gray-500 uppercase">Time</p>
                 <p className="font-medium text-gray-900 text-sm">
-                  {order.orderID}
+                  {formatDateTime(order.createdAt)}
                 </p>
               </div>
 
@@ -134,7 +147,7 @@ const PendingPass = ({
                 <p className="text-xs text-gray-500 uppercase">
                   Transaction ID
                 </p>
-                <p className="font-mono text-xs text-gray-900 break-all">
+                <p className="font-medium text-gray-900 text-sm">
                   {order.transactionID}
                 </p>
               </div>
@@ -145,11 +158,11 @@ const PendingPass = ({
                   onClick={() => onApprove(order.orderID)}
                   disabled={loadingPassOrderId === order.orderID}
                   className={`flex-1 flex items-center justify-center space-x-1 px-3 py-2 rounded-lg transition text-sm font-medium
-      ${
-        loadingPassOrderId === order.orderID
-          ? "bg-green-400 cursor-not-allowed"
-          : "bg-green-600 hover:bg-green-700"
-      } text-white`}
+                    ${
+                      loadingPassOrderId === order.orderID
+                        ? "bg-green-400 cursor-not-allowed"
+                        : "bg-green-600 hover:bg-green-700"
+                    } text-white`}
                 >
                   <CheckCircle className="w-4 h-4" />
                   <span>
@@ -161,18 +174,18 @@ const PendingPass = ({
 
                 {/* Decline */}
                 <button
-                  onClick={() => onDecline(order.id)}
-                  disabled={loadingPassOrderId === order.id}
+                  onClick={() => onDecline(order.orderID)}
+                  disabled={loadingPassOrderId === order.orderID}
                   className={`flex-1 flex items-center justify-center space-x-1 px-3 py-2 rounded-lg transition text-sm font-medium
-                  ${
-                    loadingPassOrderId === order.id
-                      ? "bg-red-400 cursor-not-allowed"
-                      : "bg-red-600 hover:bg-red-700"
-                  } text-white`}
+                    ${
+                      loadingPassOrderId === order.orderID
+                        ? "bg-red-400 cursor-not-allowed"
+                        : "bg-red-600 hover:bg-red-700"
+                    } text-white`}
                 >
                   <XCircle className="w-4 h-4" />
                   <span>
-                    {loadingPassOrderId === order.id
+                    {loadingPassOrderId === order.orderID
                       ? "Declining..."
                       : "Decline"}
                   </span>

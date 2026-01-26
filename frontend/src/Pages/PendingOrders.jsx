@@ -33,6 +33,20 @@ const PendingOrders = ({
     );
   }
 
+  const formatDateTime = (isoString) => {
+    const date = new Date(isoString);
+
+    return date.toLocaleString("en-IN", {
+      weekday: "short",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   return (
     <div className="space-y-6">
       {orders.map(([orderID, order]) => {
@@ -49,16 +63,19 @@ const PendingOrders = ({
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3">
-                    <h3 className="text-lg font-semibold text-gray-900">
-                      Order ID: {orderID}
-                    </h3>
                     <button
                       onClick={() => toggleOrderExpansion(orderID, username)}
                       className="text-sm text-purple-600 hover:text-purple-700 font-medium"
                     >
                       {isExpanded ? "▼ Hide Details" : "▶ Show User Details"}
                     </button>
+
+                    {/* Created At */}
+                    <span className="font-medium text-gray-900 text-sm">
+                      {formatDateTime(order.orderItems[0]?.createdAt)}
+                    </span>
                   </div>
+
                   <div className="mt-2 flex items-center space-x-4 text-sm">
                     <span className="text-gray-600">
                       Original:{" "}
@@ -66,12 +83,14 @@ const PendingOrders = ({
                         ₹{order.originalOrderValue}
                       </span>
                     </span>
+
                     <span className="text-gray-600">
                       Final:{" "}
                       <span className="font-semibold text-green-600">
                         ₹{order.finalOrderValue}
                       </span>
                     </span>
+
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-medium ${
                         order.isApproved
@@ -130,11 +149,11 @@ const PendingOrders = ({
                     onClick={() => onApprove(orderID)}
                     disabled={loadingOrderId === orderID}
                     className={`flex items-center space-x-1 px-4 py-2 rounded-lg transition
-      ${
-        loadingOrderId === orderID
-          ? "bg-green-400 cursor-not-allowed"
-          : "bg-green-600 hover:bg-green-700"
-      } text-white`}
+                      ${
+                        loadingOrderId === orderID
+                          ? "bg-green-400 cursor-not-allowed"
+                          : "bg-green-600 hover:bg-green-700"
+                      } text-white`}
                   >
                     <CheckCircle className="w-4 h-4" />
                     <span>

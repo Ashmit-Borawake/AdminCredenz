@@ -140,6 +140,8 @@ const AdminPanel = ({ onLogout }) => {
       });
 
       const data = await response.json();
+
+      console.log(data);
       if (response.ok) {
         setOrders(data.orders || []);
       }
@@ -162,6 +164,8 @@ const AdminPanel = ({ onLogout }) => {
       });
 
       const data = await response.json();
+
+      console.log(data);
       if (response.ok) {
         setPassOrders(data.orders || []);
       }
@@ -184,6 +188,8 @@ const AdminPanel = ({ onLogout }) => {
       });
 
       const data = await response.json();
+
+      console.log(data);
       if (response.ok) {
         setApprovedOrders(data.orders || []);
       }
@@ -296,26 +302,29 @@ const AdminPanel = ({ onLogout }) => {
     }
   };
 
+  //TODO told to change backend to maitreya for declinePassOrder
   // Decline pass order
-  const declinePassOrder = async (id) => {
+  const declinePassOrder = async (orderID) => {
     const confirmed = window.confirm(
       "Are you sure you want to decline this pass order?",
     );
 
     if (!confirmed) return;
 
-    setLoadingPassOrderId(id);
+    setLoadingPassOrderId(orderID);
 
     try {
-      const response = await fetch(`${API_BASE}/admin/declinePassOrder`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+      const response = await fetch(
+        `${API_BASE}/admin/declinePassOrder/${orderID}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
+          },
+          credentials: "include",
         },
-        body: JSON.stringify({ id }),
-        credentials: "include",
-      });
+      );
 
       if (response.ok) {
         fetchPassOrders();
