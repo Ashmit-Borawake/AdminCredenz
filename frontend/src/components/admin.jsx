@@ -28,7 +28,8 @@ const AdminPanel = ({ onLogout }) => {
   const [loadingOrderId, setLoadingOrderId] = useState(null);
   const [loadingPassOrderId, setLoadingPassOrderId] = useState(null);
 
-  const API_BASE = "https://abhitime.credenz.co.in";
+  // const API_BASE = "https://abhitime.credenz.co.in";
+  const API_BASE = "http://localhost:3000";
 
   // Email Modal Component
   const EmailModal = ({ username, onClose, onSend }) => {
@@ -304,27 +305,24 @@ const AdminPanel = ({ onLogout }) => {
 
   //TODO told to change backend to maitreya for declinePassOrder
   // Decline pass order
-  const declinePassOrder = async (orderID) => {
+  const declinePassOrder = async (id) => {
     const confirmed = window.confirm(
       "Are you sure you want to decline this pass order?",
     );
 
     if (!confirmed) return;
 
-    setLoadingPassOrderId(orderID);
+    setLoadingPassOrderId(id);
 
     try {
-      const response = await fetch(
-        `${API_BASE}/admin/declinePassOrder/${orderID}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-          },
-          credentials: "include",
+      const response = await fetch(`${API_BASE}/admin/declinePassOrder/${id}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
         },
-      );
+        credentials: "include",
+      });
 
       if (response.ok) {
         fetchPassOrders();
