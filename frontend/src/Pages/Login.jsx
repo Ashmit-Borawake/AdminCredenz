@@ -24,13 +24,15 @@ const Login = ({ onLogin }) => {
         credentials: "include",
       });
 
-      console.log(response);
-
       const data = await response.json();
 
+      console.log(data);
+
       if (response.ok) {
+        // Store both token and userType in localStorage
         localStorage.setItem("adminToken", data.token);
-        onLogin();
+        localStorage.setItem("userType", data.userType);
+        onLogin(data.userType);
       } else {
         setLoginError(data.error || "Login failed");
       }

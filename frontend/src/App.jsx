@@ -10,13 +10,14 @@ function App() {
   useEffect(() => {
     // Check if user is already logged in
     const token = localStorage.getItem("adminToken");
-    if (token) {
+    const userType = localStorage.getItem("userType");
+    if (token && userType) {
       setIsAuthenticated(true);
     }
     setLoading(false);
   }, []);
 
-  const handleLogin = () => {
+  const handleLogin = (userType) => {
     setIsAuthenticated(true);
   };
 

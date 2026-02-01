@@ -15,7 +15,7 @@ import ApprovedOrders from "../Pages/ApprovedOrders";
 import QuickActions from "../Pages/QuickActions";
 
 const AdminPanel = ({ onLogout }) => {
-  const [activeTab, setActiveTab] = useState("orders");
+  const [activeTab, setActiveTab] = useState("approved"); // Default to approved for SUBADMIN
   const [orders, setOrders] = useState([]);
   const [passOrders, setPassOrders] = useState([]);
   const [approvedOrders, setApprovedOrders] = useState([]);
@@ -24,6 +24,7 @@ const AdminPanel = ({ onLogout }) => {
   const [successMessage, setSuccessMessage] = useState("");
   const [emailModalData, setEmailModalData] = useState(null);
   const [userDetailsCache, setUserDetailsCache] = useState({});
+  const [userType, setUserType] = useState("");
 
   const [loadingOrderId, setLoadingOrderId] = useState(null);
   const [loadingPassOrderId, setLoadingPassOrderId] = useState(null);
@@ -31,6 +32,25 @@ const AdminPanel = ({ onLogout }) => {
   // const API_BASE = "https://mainweb.credenz.co.in";
   // const API_BASE = "https://abhitime.credenz.co.in";
   const API_BASE = "http://localhost:3000";
+
+  // Get user type from localStorage
+  useEffect(() => {
+    const storedUserType = localStorage.getItem("userType");
+    setUserType(storedUserType || "");
+
+    // Set default tab based on user type
+    if (storedUserType === "SUBADMIN") {
+      setActiveTab("approved");
+    }
+  }, []);
+
+  // Check if user has access to a tab
+  const hasAccess = (tab) => {
+    if (userType === "SUBADMIN") {
+      return tab === "approved"; // Only approved tab for SUBADMIN
+    }
+    return true; // Full access for ADMIN
+  };
 
   // Email Modal Component
   const EmailModal = ({ username, onClose, onSend }) => {
@@ -475,12 +495,18 @@ const AdminPanel = ({ onLogout }) => {
   // Logout handler
   const handleLogout = () => {
     localStorage.removeItem("adminToken");
+    localStorage.removeItem("userType");
     onLogout();
   };
 
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    // Fetch approved orders on mount for SUBADMIN
+    if (userType === "SUBADMIN") {
+      fetchApprovedOrders();
+    } else {
+      fetchOrders();
+    }
+  }, [userType]);
 
   useEffect(() => {
     if (activeTab === "orders") {
@@ -546,7 +572,9 @@ const AdminPanel = ({ onLogout }) => {
                 <h1 className="text-2xl font-bold text-gray-900">
                   Admin Panel
                 </h1>
-                <p className="text-sm text-gray-500">Order Management System</p>
+                <p className="text-sm text-gray-500">
+                  Order Management System {userType && `(${userType})`}
+                </p>
               </div>
             </div>
             <button
@@ -564,64 +592,72 @@ const AdminPanel = ({ onLogout }) => {
       <div className="bg-white border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex space-x-8 overflow-x-auto">
-            <button
-              onClick={() => setActiveTab("orders")}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition whitespace-nowrap ${
-                activeTab === "orders"
-                  ? "border-purple-600 text-purple-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              <div className="flex items-center space-x-2">
-                <Package className="w-4 h-4" />
-                <span>Pending Orders</span>
-                <span className="bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full text-xs">
-                  {orders.length}
-                </span>
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab("passes")}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition whitespace-nowrap ${
-                activeTab === "passes"
-                  ? "border-purple-600 text-purple-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              <div className="flex items-center space-x-2">
-                <CreditCard className="w-4 h-4" />
-                <span>Pending Passes</span>
-                <span className="bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full text-xs">
-                  {passOrders.length}
-                </span>
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab("approved")}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition whitespace-nowrap ${
-                activeTab === "approved"
-                  ? "border-purple-600 text-purple-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              <div className="flex items-center space-x-2">
-                <CheckSquare className="w-4 h-4" />
-                <span>Approved Orders</span>
-              </div>
-            </button>
-            <button
-              onClick={() => setActiveTab("quick-actions")}
-              className={`py-4 px-2 border-b-2 font-medium text-sm transition whitespace-nowrap ${
-                activeTab === "quick-actions"
-                  ? "border-purple-600 text-purple-600"
-                  : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
-              }`}
-            >
-              <div className="flex items-center space-x-2">
-                <Filter className="w-4 h-4" />
-                <span>Quick Actions</span>
-              </div>
-            </button>
+            {hasAccess("orders") && (
+              <button
+                onClick={() => setActiveTab("orders")}
+                className={`py-4 px-2 border-b-2 font-medium text-sm transition whitespace-nowrap ${
+                  activeTab === "orders"
+                    ? "border-purple-600 text-purple-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <Package className="w-4 h-4" />
+                  <span>Pending Orders</span>
+                  <span className="bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full text-xs">
+                    {orders.length}
+                  </span>
+                </div>
+              </button>
+            )}
+            {hasAccess("passes") && (
+              <button
+                onClick={() => setActiveTab("passes")}
+                className={`py-4 px-2 border-b-2 font-medium text-sm transition whitespace-nowrap ${
+                  activeTab === "passes"
+                    ? "border-purple-600 text-purple-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <CreditCard className="w-4 h-4" />
+                  <span>Pending Passes</span>
+                  <span className="bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full text-xs">
+                    {passOrders.length}
+                  </span>
+                </div>
+              </button>
+            )}
+            {hasAccess("approved") && (
+              <button
+                onClick={() => setActiveTab("approved")}
+                className={`py-4 px-2 border-b-2 font-medium text-sm transition whitespace-nowrap ${
+                  activeTab === "approved"
+                    ? "border-purple-600 text-purple-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <CheckSquare className="w-4 h-4" />
+                  <span>Approved Orders</span>
+                </div>
+              </button>
+            )}
+            {hasAccess("quick-actions") && (
+              <button
+                onClick={() => setActiveTab("quick-actions")}
+                className={`py-4 px-2 border-b-2 font-medium text-sm transition whitespace-nowrap ${
+                  activeTab === "quick-actions"
+                    ? "border-purple-600 text-purple-600"
+                    : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <Filter className="w-4 h-4" />
+                  <span>Quick Actions</span>
+                </div>
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -671,37 +707,37 @@ const AdminPanel = ({ onLogout }) => {
           <div className="flex justify-center items-center py-20">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600"></div>
           </div>
-        ) : activeTab === "orders" ? (
-          <PendingOrders
-            orders={filteredOrders}
-            onApprove={approveOrder}
-            onDecline={declineOrder}
-            loadingOrderId={loadingOrderId} // ✅ ADD
-            onSendEmail={(username) => setEmailModalData({ username })}
-            getUserDetails={getUserDetails}
-          />
-        ) : activeTab === "passes" ? (
-          <PendingPass
-            orders={filteredPassOrders}
-            onApprove={approvePassOrder}
-            onDecline={declinePassOrder}
-            loadingPassOrderId={loadingPassOrderId} // ✅ ADD
-            onSendEmail={(username) => setEmailModalData({ username })}
-            getUserDetails={getUserDetails}
-          />
         ) : activeTab === "approved" ? (
           <ApprovedOrders
             orders={filteredApprovedOrders}
             onSendEmail={(username) => setEmailModalData({ username })}
             getUserDetails={getUserDetails}
           />
-        ) : (
+        ) : activeTab === "orders" && hasAccess("orders") ? (
+          <PendingOrders
+            orders={filteredOrders}
+            onApprove={approveOrder}
+            onDecline={declineOrder}
+            loadingOrderId={loadingOrderId}
+            onSendEmail={(username) => setEmailModalData({ username })}
+            getUserDetails={getUserDetails}
+          />
+        ) : activeTab === "passes" && hasAccess("passes") ? (
+          <PendingPass
+            orders={filteredPassOrders}
+            onApprove={approvePassOrder}
+            onDecline={declinePassOrder}
+            loadingPassOrderId={loadingPassOrderId}
+            onSendEmail={(username) => setEmailModalData({ username })}
+            getUserDetails={getUserDetails}
+          />
+        ) : activeTab === "quick-actions" && hasAccess("quick-actions") ? (
           <QuickActions
             onRegister={quickRegisterUser}
             onBuyPass={buyPassForUser}
             onCreateOrder={createOrderForUser}
           />
-        )}
+        ) : null}
       </div>
 
       {/* Email Modal */}
