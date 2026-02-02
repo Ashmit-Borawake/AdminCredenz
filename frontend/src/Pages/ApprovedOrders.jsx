@@ -4,15 +4,49 @@ import { CheckSquare, Mail } from "lucide-react";
 const ApprovedOrders = ({ orders, onSendEmail, getUserDetails }) => {
   const [expandedOrders, setExpandedOrders] = useState({});
   const [userDetails, setUserDetails] = useState({});
+  const [loadingMembers, setLoadingMembers] = useState({});
 
-  const toggleOrderExpansion = async (orderID, username) => {
+  const toggleOrderExpansion = async (orderID, order) => {
     const isExpanding = !expandedOrders[orderID];
     setExpandedOrders((prev) => ({ ...prev, [orderID]: isExpanding }));
 
-    if (isExpanding && !userDetails[username]) {
-      const details = await getUserDetails(username);
-      if (details) {
-        setUserDetails((prev) => ({ ...prev, [username]: details }));
+    if (isExpanding) {
+      // Collect all unique usernames from all order items
+      const allUsernames = new Set();
+      order.orderItems.forEach((item) => {
+        [item.username1, item.username2, item.username3, item.username4]
+          .filter(Boolean)
+          .forEach((username) => allUsernames.add(username));
+      });
+
+      // Fetch details for usernames we don't have yet
+      const usernamesToFetch = Array.from(allUsernames).filter(
+        (username) => !userDetails[username],
+      );
+
+      if (usernamesToFetch.length > 0) {
+        setLoadingMembers((prev) => ({ ...prev, [orderID]: true }));
+
+        // Fetch all user details in parallel
+        const detailsPromises = usernamesToFetch.map((username) =>
+          getUserDetails(username).then((details) => ({
+            username,
+            details,
+          })),
+        );
+
+        const results = await Promise.all(detailsPromises);
+
+        // Update state with all fetched details
+        const newDetails = {};
+        results.forEach(({ username, details }) => {
+          if (details) {
+            newDetails[username] = details;
+          }
+        });
+
+        setUserDetails((prev) => ({ ...prev, ...newDetails }));
+        setLoadingMembers((prev) => ({ ...prev, [orderID]: false }));
       }
     }
   };
@@ -46,18 +80,19 @@ const ApprovedOrders = ({ orders, onSendEmail, getUserDetails }) => {
         const username = order.orderItems[0].username1;
         const isExpanded = expandedOrders[orderID];
         const user = userDetails[username];
+        const isLoadingMembers = loadingMembers[orderID];
 
         return (
           <div
             key={orderID}
             className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
           >
-            <div className="bg-linear-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-200">
+            <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-200">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3">
                     <button
-                      onClick={() => toggleOrderExpansion(orderID, username)}
+                      onClick={() => toggleOrderExpansion(orderID, order)}
                       className="text-sm text-green-600 hover:text-green-700 font-medium"
                     >
                       {isExpanded ? "▼ Hide Details" : "▶ Show User Details"}
@@ -122,7 +157,7 @@ const ApprovedOrders = ({ orders, onSendEmail, getUserDetails }) => {
                       </div>
                     </div>
                   )}
-                  {isExpanded && !user && (
+                  {isExpanded && (!user || isLoadingMembers) && (
                     <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                       <p className="text-gray-500 text-sm">
                         Loading user details...
@@ -183,7 +218,7 @@ const ApprovedOrders = ({ orders, onSendEmail, getUserDetails }) => {
                       </div>
                     </div>
                     <div className="mt-3 pt-3 border-t border-gray-200">
-                      <p className="text-xs text-gray-500 uppercase mb-1">
+                      <p className="text-xs text-gray-500 uppercase mb-2">
                         Team Members
                       </p>
                       <div className="flex flex-wrap gap-2">
@@ -194,14 +229,27 @@ const ApprovedOrders = ({ orders, onSendEmail, getUserDetails }) => {
                           item.username4,
                         ]
                           .filter(Boolean)
-                          .map((username, idx) => (
-                            <span
-                              key={idx}
-                              className="px-2 py-1 bg-green-100 text-green-700 rounded text-sm"
-                            >
-                              {username}
-                            </span>
-                          ))}
+                          .map((username, idx) => {
+                            const memberDetails = userDetails[username];
+                            return (
+                              <span
+                                key={idx}
+                                className="px-3 py-2 bg-green-100 text-green-700 rounded text-sm font-medium"
+                                title={
+                                  memberDetails
+                                    ? `${memberDetails.firstName} ${memberDetails.lastName}`
+                                    : username
+                                }
+                              >
+                                {username}
+                                {memberDetails && (
+                                  <span className="ml-2 text-green-600">
+                                    - {memberDetails.phoneNumber}
+                                  </span>
+                                )}
+                              </span>
+                            );
+                          })}
                       </div>
                     </div>
                   </div>

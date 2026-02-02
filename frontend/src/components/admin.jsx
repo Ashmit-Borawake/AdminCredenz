@@ -13,6 +13,7 @@ import PendingOrders from "../Pages/PendingOrders";
 import PendingPass from "../Pages/PendingPass";
 import ApprovedOrders from "../Pages/ApprovedOrders";
 import QuickActions from "../Pages/QuickActions";
+import api from "../utlils/api";
 
 const AdminPanel = ({ onLogout }) => {
   const [activeTab, setActiveTab] = useState("approved"); // Default to approved for SUBADMIN
@@ -28,10 +29,6 @@ const AdminPanel = ({ onLogout }) => {
 
   const [loadingOrderId, setLoadingOrderId] = useState(null);
   const [loadingPassOrderId, setLoadingPassOrderId] = useState(null);
-
-  const API_BASE = "https://mainweb.credenz.co.in";
-  // const API_BASE = "https://abhitime.credenz.co.in";
-  // const API_BASE = "http://localhost:3000";
 
   // Get user type from localStorage
   useEffect(() => {
@@ -154,19 +151,9 @@ const AdminPanel = ({ onLogout }) => {
   const fetchOrders = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/admin/viewAllOrders`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-        },
-        credentials: "include",
-      });
-
-      const data = await response.json();
-
-      console.log(data);
-      if (response.ok) {
-        setOrders(data.orders || []);
-      }
+      const response = await api.get("/admin/viewAllOrders");
+      console.log(response.data);
+      setOrders(response.data.orders || []);
     } catch (error) {
       console.error("Error fetching orders:", error);
     } finally {
@@ -178,19 +165,9 @@ const AdminPanel = ({ onLogout }) => {
   const fetchPassOrders = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/admin/viewAllPassOrders`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-        },
-        credentials: "include",
-      });
-
-      const data = await response.json();
-
-      console.log(data);
-      if (response.ok) {
-        setPassOrders(data.orders || []);
-      }
+      const response = await api.get("/admin/viewAllPassOrders");
+      console.log(response.data);
+      setPassOrders(response.data.orders || []);
     } catch (error) {
       console.error("Error fetching pass orders:", error);
     } finally {
@@ -202,19 +179,9 @@ const AdminPanel = ({ onLogout }) => {
   const fetchApprovedOrders = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`${API_BASE}/admin/viewAllApprovedOrders`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-        },
-        credentials: "include",
-      });
-
-      const data = await response.json();
-
-      console.log(data);
-      if (response.ok) {
-        setApprovedOrders(data.orders || []);
-      }
+      const response = await api.get("/admin/viewAllApprovedOrders");
+      console.log(response.data);
+      setApprovedOrders(response.data.orders || []);
     } catch (error) {
       console.error("Error fetching approved orders:", error);
     } finally {
@@ -233,22 +200,8 @@ const AdminPanel = ({ onLogout }) => {
     setLoadingOrderId(orderID);
 
     try {
-      const response = await fetch(
-        `${API_BASE}/admin/approveOrder/${orderID}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-          },
-          body: JSON.stringify({ orderID }),
-          credentials: "include",
-        },
-      );
-
-      if (response.ok) {
-        fetchOrders();
-      }
+      await api.post(`/admin/approveOrder/${orderID}`, { orderID });
+      fetchOrders();
     } catch (error) {
       console.error("Error approving order:", error);
     } finally {
@@ -267,22 +220,8 @@ const AdminPanel = ({ onLogout }) => {
     setLoadingOrderId(orderID);
 
     try {
-      const response = await fetch(
-        `${API_BASE}/admin/declineOrder/${orderID}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-          },
-          body: JSON.stringify({ orderID }),
-          credentials: "include",
-        },
-      );
-
-      if (response.ok) {
-        fetchOrders();
-      }
+      await api.post(`/admin/declineOrder/${orderID}`, { orderID });
+      fetchOrders();
     } catch (error) {
       console.error("Error declining order:", error);
     } finally {
@@ -301,22 +240,8 @@ const AdminPanel = ({ onLogout }) => {
     setLoadingPassOrderId(orderID);
 
     try {
-      const response = await fetch(
-        `${API_BASE}/admin/approvePassOrder/${orderID}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-          },
-          body: JSON.stringify({ orderID }),
-          credentials: "include",
-        },
-      );
-
-      if (response.ok) {
-        fetchPassOrders();
-      }
+      await api.post(`/admin/approvePassOrder/${orderID}`, { orderID });
+      fetchPassOrders();
     } catch (error) {
       console.error("Error approving pass order:", error);
     } finally {
@@ -336,18 +261,8 @@ const AdminPanel = ({ onLogout }) => {
     setLoadingPassOrderId(id);
 
     try {
-      const response = await fetch(`${API_BASE}/admin/declinePassOrder/${id}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-        },
-        credentials: "include",
-      });
-
-      if (response.ok) {
-        fetchPassOrders();
-      }
+      await api.post(`/admin/declinePassOrder/${id}`);
+      fetchPassOrders();
     } catch (error) {
       console.error("Error declining pass order:", error);
     } finally {
@@ -358,108 +273,61 @@ const AdminPanel = ({ onLogout }) => {
   // Quick register user
   const quickRegisterUser = async (userData) => {
     try {
-      const response = await fetch(`${API_BASE}/auth/signup`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-        },
-        body: JSON.stringify({ user: userData }),
-        credentials: "include",
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccessMessage("User registered successfully!");
-        setTimeout(() => setSuccessMessage(""), 3000);
-        return { success: true };
-      } else {
-        return { success: false, error: data.error || "Registration failed" };
-      }
+      const response = await api.post("/auth/signup", { user: userData });
+      setSuccessMessage("User registered successfully!");
+      setTimeout(() => setSuccessMessage(""), 3000);
+      return { success: true };
     } catch (error) {
-      return { success: false, error: "Network error. Please try again." };
+      const errorMessage = error.response?.data?.error || "Registration failed";
+      return { success: false, error: errorMessage };
     }
   };
 
   // Buy pass for user
   const buyPassForUser = async (username, transactionID) => {
     try {
-      const response = await fetch(`${API_BASE}/admin/buyPass`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-        },
-        body: JSON.stringify({ username, transactionID }),
-        credentials: "include",
+      const response = await api.post("/admin/buyPass", {
+        username,
+        transactionID,
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccessMessage("Pass purchased successfully!");
-        setTimeout(() => setSuccessMessage(""), 3000);
-        return { success: true };
-      } else {
-        return { success: false, error: data.error || "Purchase failed" };
-      }
+      setSuccessMessage("Pass purchased successfully!");
+      setTimeout(() => setSuccessMessage(""), 3000);
+      return { success: true };
     } catch (error) {
-      return { success: false, error: "Network error. Please try again." };
+      const errorMessage = error.response?.data?.error || "Purchase failed";
+      return { success: false, error: errorMessage };
     }
   };
 
   // Create order for user
   const createOrderForUser = async (orderData) => {
     try {
-      const response = await fetch(`${API_BASE}/admin/order`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-        },
-        body: JSON.stringify(orderData),
-        credentials: "include",
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccessMessage("Order created successfully!");
-        setTimeout(() => setSuccessMessage(""), 3000);
-        return { success: true };
-      } else {
-        return { success: false, error: data.error || "Order creation failed" };
-      }
+      const response = await api.post("/admin/order", orderData);
+      setSuccessMessage("Order created successfully!");
+      setTimeout(() => setSuccessMessage(""), 3000);
+      return { success: true };
     } catch (error) {
-      return { success: false, error: "Network error. Please try again." };
+      const errorMessage =
+        error.response?.data?.error || "Order creation failed";
+      return { success: false, error: errorMessage };
     }
   };
 
   // Send email to user
   const sendEmail = async (subject, content, username) => {
     try {
-      const response = await fetch(`${API_BASE}/admin/sendEmail`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-        },
-        body: JSON.stringify({ subject, content, username }),
-        credentials: "include",
+      const response = await api.post("/admin/sendEmail", {
+        subject,
+        content,
+        username,
       });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        setSuccessMessage("Email sent successfully!");
-        setTimeout(() => setSuccessMessage(""), 3000);
-        return { success: true };
-      } else {
-        return { success: false, error: data.error || "Failed to send email" };
-      }
+      setSuccessMessage("Email sent successfully!");
+      setTimeout(() => setSuccessMessage(""), 3000);
+      return { success: true };
     } catch (error) {
-      return { success: false, error: "Network error. Please try again." };
+      const errorMessage =
+        error.response?.data?.error || "Failed to send email";
+      return { success: false, error: errorMessage };
     }
   };
 
@@ -470,21 +338,15 @@ const AdminPanel = ({ onLogout }) => {
     }
 
     try {
-      const response = await fetch(`${API_BASE}/admin/user`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("adminToken")}`,
-        },
-        body: JSON.stringify({ user: { username } }),
-        credentials: "include",
-      });
-
-      const data = await response.json();
-      if (response.ok && data.user) {
-        setUserDetailsCache((prev) => ({ ...prev, [username]: data.user }));
-        return data.user;
+      const response = await api.post("/admin/user", { user: { username } });
+      if (response.data.user) {
+        setUserDetailsCache((prev) => ({
+          ...prev,
+          [username]: response.data.user,
+        }));
+        return response.data.user;
       }
+      console.log(response.data);
       return null;
     } catch (error) {
       console.error("Error fetching user details:", error);
