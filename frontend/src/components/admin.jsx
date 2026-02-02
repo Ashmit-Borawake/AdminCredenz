@@ -152,7 +152,7 @@ const AdminPanel = ({ onLogout }) => {
     setLoading(true);
     try {
       const response = await api.get("/admin/viewAllOrders");
-      console.log(response.data);
+      // console.log(response.data);
       setOrders(response.data.orders || []);
     } catch (error) {
       console.error("Error fetching orders:", error);
@@ -166,7 +166,7 @@ const AdminPanel = ({ onLogout }) => {
     setLoading(true);
     try {
       const response = await api.get("/admin/viewAllPassOrders");
-      console.log(response.data);
+      // console.log(response.data);
       setPassOrders(response.data.orders || []);
     } catch (error) {
       console.error("Error fetching pass orders:", error);
@@ -180,7 +180,7 @@ const AdminPanel = ({ onLogout }) => {
     setLoading(true);
     try {
       const response = await api.get("/admin/viewAllApprovedOrders");
-      console.log(response.data);
+      // console.log(response.data);
       setApprovedOrders(response.data.orders || []);
     } catch (error) {
       console.error("Error fetching approved orders:", error);
@@ -346,7 +346,7 @@ const AdminPanel = ({ onLogout }) => {
         }));
         return response.data.user;
       }
-      console.log(response.data);
+      // console.log(response.data);
       return null;
     } catch (error) {
       console.error("Error fetching user details:", error);
