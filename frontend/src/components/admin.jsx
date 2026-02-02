@@ -29,9 +29,9 @@ const AdminPanel = ({ onLogout }) => {
   const [loadingOrderId, setLoadingOrderId] = useState(null);
   const [loadingPassOrderId, setLoadingPassOrderId] = useState(null);
 
-  // const API_BASE = "https://mainweb.credenz.co.in";
+  const API_BASE = "https://mainweb.credenz.co.in";
   // const API_BASE = "https://abhitime.credenz.co.in";
-  const API_BASE = "http://localhost:3000";
+  // const API_BASE = "http://localhost:3000";
 
   // Get user type from localStorage
   useEffect(() => {
