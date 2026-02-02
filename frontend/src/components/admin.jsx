@@ -249,7 +249,6 @@ const AdminPanel = ({ onLogout }) => {
     }
   };
 
-  //TODO told to change backend to maitreya for declinePassOrder
   // Decline pass order
   const declinePassOrder = async (id) => {
     const confirmed = window.confirm(

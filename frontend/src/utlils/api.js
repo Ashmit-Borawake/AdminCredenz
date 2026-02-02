@@ -1,12 +1,10 @@
-// api.js
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "/api",
+  baseURL: import.meta.env.VITE_API_BASE_URL,
   withCredentials: true,
 });
 
-// Add a request interceptor to dynamically set the Authorization header
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("adminToken");
   if (token) {
