@@ -23,6 +23,7 @@ const Login = ({ onLogin }) => {
       localStorage.setItem("userType", response.data.userType);
       onLogin(response.data.userType);
     } catch (error) {
+      console.log(error);
       const errorMessage =
         error.response?.data?.error || "Network error. Please try again.";
       setLoginError(errorMessage);

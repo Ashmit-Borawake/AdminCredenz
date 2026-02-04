@@ -29,6 +29,22 @@ const AdminPanel = ({ onLogout }) => {
 
   const [loadingOrderId, setLoadingOrderId] = useState(null);
   const [loadingPassOrderId, setLoadingPassOrderId] = useState(null);
+  const [selectedEvent, setSelectedEvent] = useState("all");
+
+  // Event list
+  const eventOptions = [
+    "oss",
+    "xodia",
+    "web_weaver",
+    "wallstreet",
+    "reverse_coding",
+    "roboliga",
+    "enigma",
+    "b_plan",
+    "datawiz",
+    "cretronix",
+    "credenz_pass",
+  ];
 
   // Get user type from localStorage
   useEffect(() => {
@@ -47,6 +63,36 @@ const AdminPanel = ({ onLogout }) => {
       return tab === "approved"; // Only approved tab for SUBADMIN
     }
     return true; // Full access for ADMIN
+  };
+
+  // Calculate event-wise counts for approved orders
+  const getEventCounts = () => {
+    const counts = { all: 0 };
+    eventOptions.forEach((event) => {
+      counts[event] = 0;
+    });
+
+    approvedOrders.forEach(([orderID, order]) => {
+      order.orderItems.forEach((item) => {
+        const eventSlug = item.eventSlug.toLowerCase();
+        counts.all++; // Increment total count
+        if (counts.hasOwnProperty(eventSlug)) {
+          counts[eventSlug]++;
+        }
+      });
+    });
+
+    return counts;
+  };
+
+  // Handle event tab click
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+    if (event === "all") {
+      setSearchTerm(""); // Clear search for ALL
+    } else {
+      setSearchTerm(event); // Set search term to event name
+    }
   };
 
   // Email Modal Component
@@ -550,6 +596,63 @@ const AdminPanel = ({ onLogout }) => {
               Refresh
             </button>
           </div>
+
+          {/* Event-wise count tabs for Approved Orders */}
+          {activeTab === "approved" && (
+            <div className="mt-4 bg-white rounded-lg border border-gray-200 p-4">
+              <div className="flex flex-wrap gap-3">
+                {/* ALL Tab */}
+                <button
+                  onClick={() => handleEventClick("all")}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg border transition-all ${
+                    selectedEvent === "all"
+                      ? "bg-purple-600 text-white border-purple-600 shadow-md"
+                      : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                  }`}
+                >
+                  <span className="text-sm font-medium capitalize">ALL:</span>
+                  <span className="text-sm font-bold">
+                    {getEventCounts()["all"] || 0}
+                  </span>
+                </button>
+
+                {/* Individual Event Tabs */}
+                {eventOptions.map((event) => {
+                  const count = getEventCounts()[event] || 0;
+                  return (
+                    <button
+                      key={event}
+                      onClick={() => handleEventClick(event)}
+                      className={`flex items-center space-x-2 px-4 py-2 rounded-lg border transition-all ${
+                        selectedEvent === event
+                          ? "bg-purple-600 text-white border-purple-600 shadow-md"
+                          : "bg-gray-50 border-gray-200 hover:bg-gray-100"
+                      }`}
+                    >
+                      <span
+                        className={`text-sm font-medium capitalize ${
+                          selectedEvent === event
+                            ? "text-white"
+                            : "text-gray-700"
+                        }`}
+                      >
+                        {event.replace(/_/g, " ")}:
+                      </span>
+                      <span
+                        className={`text-sm font-bold ${
+                          selectedEvent === event
+                            ? "text-white"
+                            : "text-purple-600"
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
       )}
 

@@ -87,7 +87,7 @@ const ApprovedOrders = ({ orders, onSendEmail, getUserDetails }) => {
             key={orderID}
             className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
           >
-            <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-200">
+            <div className="bg-linear-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-200">
               <div className="flex justify-between items-start">
                 <div className="flex-1">
                   <div className="flex items-center space-x-3">
