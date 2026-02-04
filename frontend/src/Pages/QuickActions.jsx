@@ -54,8 +54,8 @@ const QuickActions = ({ onRegister, onBuyPass, onCreateOrder }) => {
       return;
     }
 
-    if (password.length < 8 || password.length > 20) {
-      setFormError("Password must be between 8 and 20 characters");
+    if (password.length < 8 || password.length > 10) {
+      setFormError("Password must be between 8 and 10 characters");
       setFormLoading(false);
       return;
     }
@@ -234,7 +234,8 @@ const QuickActions = ({ onRegister, onBuyPass, onCreateOrder }) => {
                 value={formData.password || ""}
                 onChange={(e) => updateFormData("password", e.target.value)}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none"
-                placeholder="8-20 characters"
+                placeholder="8-10 characters"
+                maxLength={10}
               />
             </div>
 
